@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>She Already Exists</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #FEF5E9;
+      font-family: Georgia, serif;
+    }
+    body {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      background: radial-gradient(circle at top, rgba(233,31,255,0.08), transparent 35%), #FEF5E9;
+    }
+    iframe {
+      width: 100%;
+      height: 100vh;
+      border: 0;
+      background: #FEF5E9;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="quizFrame" title="She Already Exists Quiz" src="/shrukapublic/index.html"></iframe>
+
+  <script>
+    window.addEventListener('load', () => {
+      const iframe = document.getElementById('quizFrame');
+
+      const wrapQuiz = () => {
+        const win = iframe.contentWindow;
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        if (!win || !doc) return;
+
+        const emailStep = doc.getElementById('s-email');
+        if (!emailStep || doc.getElementById('consent')) return;
+
+        const emailInput = doc.getElementById('uemail');
+        if (!emailInput) return;
+
+        const consentWrap = doc.createElement('label');
+        consentWrap.id = 'consent-wrapper';
+        consentWrap.style.cssText = 'display:flex;align-items:flex-start;gap:10px;margin:10px 0 12px;cursor:pointer;font-size:13px;line-height:1.5;color:#400026;opacity:.8;';
+        consentWrap.innerHTML = '<input id="consent" type="checkbox" style="margin-top:3px; accent-color:#400026;" /> <span>I agree to share my answers and email so a personalised story can be created for me. My information will not be sold or publicly shared.</span>';
+        emailInput.insertAdjacentElement('afterend', consentWrap);
+
+        const note = doc.createElement('p');
+        note.style.cssText = 'margin:0 0 12px;font-size:12px;line-height:1.5;color:#400026;opacity:.65;';
+        note.innerHTML = 'To request deletion, email <a href="mailto:aezorstreller@gmail.com" style="color:#400026">aezorstreller@gmail.com</a>.';
+        consentWrap.parentNode.insertBefore(note, consentWrap);
+
+        win.A = win.A || {};
+        win.A.consent = false;
+
+        const consentBox = doc.getElementById('consent');
+        consentBox.addEventListener('change', function () {
+          win.A.consent = this.checked;
+        });
+
+        const originalBuildResult = win.buildResult;
+        if (!originalBuildResult || originalBuildResult.__patched) return;
+
+        win.buildResult = async function () {
+          if (!win.A.email || !String(win.A.email).trim()) {
+            alert('Please enter your email to see your result.');
+            return;
+          }
+
+          if (!win.A.consent) {
+            alert('Please agree to the consent statement before continuing.');
+            return;
+          }
+
+          const payload = {
+            ...win.A,
+            consent: true,
+            archetype: typeof win.getArchetype === 'function' ? win.getArchetype().name : ''
+          };
+
+          try {
+            const response = await fetch('/api/quiz', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+              throw new Error(result.message || 'Submission failed.');
+            }
+
+            return originalBuildResult.call(this);
+          } catch (error) {
+            console.error(error);
+            alert('Your answers could not be saved. Please try again.');
+          }
+        };
+
+        win.buildResult.__patched = true;
+      };
+
+      iframe.onload = function () {
+        const tryPatch = () => {
+          try {
+            wrapQuiz();
+          } catch (error) {
+            console.error('Quiz patch failed:', error);
+          }
+        };
+
+        setTimeout(tryPatch, 500);
+        setInterval(() => {
+          try {
+            wrapQuiz();
+          } catch (error) {
+            // ignore
+          }
+        }, 1500);
+      };
+    });
+  </script>
+</body>
+</html>
