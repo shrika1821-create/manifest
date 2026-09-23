@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>She Already Exists</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Caveat:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--wine:#400026;--mag:#E91FFF;--gold:#FCD638;--ink:#2A1A0E;--cream:#FFF8F0;--paper:#FEF5E9;--fade:rgba(64,0,38,.11);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:var(--paper);background-image:radial-gradient(ellipse at 15% 25%,rgba(228,156,120,.09) 0%,transparent 55%),radial-gradient(ellipse at 85% 70%,rgba(232,180,200,.09) 0%,transparent 55%);font-family:'Fraunces',serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;padding-bottom:90px;}
+/* PROGRESS */
+.prog{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(64,0,38,.10);z-index:100;}
+.prog-fill{height:100%;background:var(--gold);width:0%;transition:width .5s ease;}
+/* CONTAINER */
+.qwrap{width:100%;max-width:460px;padding:0 22px;padding-top:30px;}
+/* STEPS */
+.step{display:none;animation:fi .4s ease;}
+.step.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* ORB */
+.orb{width:18px;height:18px;border-radius:50%;margin:0 auto 22px;animation:breathe 3s ease-in-out infinite;}
+.orb-wine{background:rgba(64,0,38,.35);box-shadow:0 0 0 5px rgba(64,0,38,.10),0 0 0 10px rgba(64,0,38,.04);}
+.orb-warm{background:rgba(200,90,30,.35);box-shadow:0 0 0 5px rgba(200,90,30,.10),0 0 0 10px rgba(200,90,30,.04);}
+.orb-gold{background:rgba(200,168,0,.35);box-shadow:0 0 0 5px rgba(200,168,0,.10),0 0 0 10px rgba(200,168,0,.04);}
+.orb-mag{background:rgba(233,31,255,.35);box-shadow:0 0 0 5px rgba(233,31,255,.10),0 0 0 10px rgba(233,31,255,.04);}
+.orb-purple{background:rgba(100,30,180,.35);box-shadow:0 0 0 5px rgba(100,30,180,.10),0 0 0 10px rgba(100,30,180,.04);}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.35);opacity:1}}
+/* TEXT */
+.qlabel{font-family:'Caveat',cursive;font-size:1.4rem;font-weight:600;color:var(--wine);margin-bottom:7px;line-height:1.35;}
+.qsub{font-size:.86rem;font-style:italic;color:var(--ink);opacity:.6;margin-bottom:20px;line-height:1.55;}
+.cat-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.11em;color:var(--wine);opacity:.7;margin:18px 0 8px;display:flex;align-items:center;gap:7px;}
+.cat-label::after{content:'';flex:1;height:1px;background:var(--fade);}
+.flabel{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--wine);opacity:.65;margin-bottom:5px;}
+.max-note{font-family:'Caveat',cursive;font-size:.82rem;color:var(--wine);opacity:.55;margin-top:4px;}
+/* INPUTS */
+.field{width:100%;background:transparent;border:none;border-bottom:1.5px solid rgba(64,0,38,.3);padding:9px 0;font-family:'Caveat',cursive;font-size:1.2rem;color:var(--ink);outline:none;transition:border-color .2s;margin-bottom:18px;}
+.field::placeholder{opacity:.3;}
+.field:focus{border-color:var(--mag);}
+textarea.field{border:1.5px solid rgba(64,0,38,.3);padding:12px 14px;border-radius:2px;resize:vertical;min-height:80px;font-size:1.1rem;}
+.row2{display:flex;gap:16px;}
+.row2 .fg{flex:1;}
+/* PILLS */
+.pill-group{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
+.pill{padding:7px 15px;border:1.5px solid rgba(64,0,38,.25);background:transparent;color:var(--ink);font-family:'Caveat',cursive;font-size:1.05rem;cursor:pointer;transition:all .15s;border-radius:100px;line-height:1;}
+.pill:hover{background:rgba(64,0,38,.05);}
+.pill.sel{background:var(--wine);color:var(--cream);border-color:var(--wine);}
+.pill.dimmed{opacity:.28;pointer-events:none;}
+/* PRIORITY CARDS */
+.pcard-group{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.pcard{padding:16px 12px;border:1.5px solid var(--fade);background:rgba(255,255,255,.45);color:var(--ink);font-family:'Caveat',cursive;font-size:1.05rem;cursor:pointer;transition:all .15s;text-align:center;position:relative;}
+.pcard .picon{font-size:1.35rem;display:block;margin-bottom:5px;}
+.pcard:hover{border-color:var(--wine);}
+.pcard.sel{background:var(--wine);color:var(--cream);border-color:var(--wine);}
+.pcard .pnum{position:absolute;top:7px;right:9px;width:19px;height:19px;background:var(--gold);color:var(--ink);border-radius:50%;font-size:.72rem;font-weight:700;display:none;align-items:center;justify-content:center;font-family:'Unbounded',monospace;}
+.pcard.sel .pnum{display:flex;}
+.p-hint{font-family:'Caveat',cursive;font-size:.95rem;color:var(--wine);opacity:.7;text-align:center;margin-bottom:12px;}
+/* MINI SWATCHES */
+.msw-group{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:16px;}
+.msw{width:36px;height:36px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:all .15s;flex-shrink:0;}
+.msw:hover{transform:scale(1.1);}
+.msw.sel{border-color:var(--ink);box-shadow:0 0 0 2px var(--gold);}
+/* COLOR PAIRS (aura) */
+.color-pairs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.color-pair{text-align:center;cursor:pointer;}
+.pair-circles{display:flex;gap:4px;margin-bottom:5px;}
+.pair-c{width:38px;height:38px;border-radius:50%;border:2px solid transparent;transition:all .15s;}
+.pair-c:hover{transform:scale(1.08);}
+.pair-c.sel{border-color:var(--ink);box-shadow:0 0 0 2px var(--gold);}
+.pair-hue{font-family:'Caveat',cursive;font-size:.72rem;opacity:.6;text-align:center;}
+/* AESTHETIC CARDS */
+.aes-group{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px;}
+.aes-card{padding:14px 12px;border:1.5px solid var(--fade);background:rgba(255,255,255,.45);cursor:pointer;transition:all .15s;text-align:center;font-family:'Caveat',cursive;}
+.aes-card .aes-name{font-size:1rem;color:var(--wine);display:block;margin-bottom:3px;}
+.aes-card .aes-sub{font-size:.78rem;color:var(--ink);opacity:.55;line-height:1.3;}
+.aes-card:hover{border-color:var(--wine);}
+.aes-card.sel{background:var(--wine);color:var(--cream);border-color:var(--wine);}
+.aes-card.sel .aes-name,.aes-card.sel .aes-sub{color:var(--cream);}
+/* VIZ */
+.viz-wrap{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.viz-title{font-size:1.7rem;font-style:italic;font-weight:300;color:var(--wine);margin-bottom:10px;line-height:1.3;}
+.viz-sub{font-family:'Caveat',cursive;font-size:1.05rem;opacity:.65;line-height:1.6;max-width:280px;margin:0 auto 28px;}
+/* WELCOME */
+.w-title{font-size:1.85rem;font-style:italic;font-weight:300;color:var(--wine);text-align:center;line-height:1.25;margin-bottom:10px;}
+.w-sub{font-family:'Caveat',cursive;font-size:1.05rem;opacity:.68;text-align:center;margin-bottom:32px;line-height:1.55;}
+.w-woman{display:flex;justify-content:center;margin-bottom:26px;}
+/* NAV */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:16px;border-top:1px solid var(--fade);}
+.bbk{background:none;border:none;font-family:'Caveat',cursive;font-size:1rem;color:var(--ink);opacity:.45;cursor:pointer;padding:8px 0;}
+.bbk:hover{opacity:.75;}
+.bnxt{background:var(--wine);color:var(--cream);border:none;padding:12px 28px;font-family:'Caveat',cursive;font-size:1.1rem;cursor:pointer;transition:background .15s;}
+.bnxt:hover{background:#5a0038;}
+.bnxt.solo{margin-left:auto;}
+/* RESULTS */
+.res-hero{text-align:center;padding:34px 0 22px;border-bottom:1px solid var(--fade);margin-bottom:22px;}
+.res-aura{width:58px;height:58px;border-radius:50%;margin:0 auto 13px;}
+.res-name{font-size:1.85rem;font-style:italic;font-weight:300;color:var(--wine);margin-bottom:4px;}
+.archetype-label{font-family:'Caveat',cursive;font-size:1rem;color:var(--ink);opacity:.55;letter-spacing:.04em;}
+.res-figure{display:flex;justify-content:center;margin:16px 0;}
+.claim-box{padding:22px 20px;margin:4px 0 22px;}
+.claim-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.13em;color:var(--gold);margin-bottom:10px;}
+.claim-text{font-style:italic;font-size:1.02rem;line-height:1.7;font-weight:300;color:var(--cream);}
+.snippets{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px;}
+.snippet{padding:14px;border:1px solid var(--fade);background:rgba(255,255,255,.5);}
+.snippet .sn-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.09em;color:var(--wine);opacity:.65;margin-bottom:6px;}
+.snippet .sn-text{font-family:'Caveat',cursive;font-size:.95rem;line-height:1.45;}
+.cta-wrap{border:2px solid var(--wine);padding:22px 16px;text-align:center;margin-bottom:14px;}
+.cta-title{font-family:'Caveat',cursive;font-size:1.2rem;color:var(--wine);margin-bottom:6px;}
+.cta-sub{font-size:.83rem;opacity:.65;margin-bottom:16px;line-height:1.5;}
+.btn-cta{display:block;width:100%;background:var(--mag);color:var(--ink);border:none;padding:14px;font-family:'Caveat',cursive;font-size:1.1rem;font-weight:600;cursor:pointer;margin-bottom:9px;}
+.btn-sec{display:block;width:100%;background:transparent;color:var(--wine);border:1.5px solid var(--wine);padding:11px;font-family:'Caveat',cursive;font-size:1rem;cursor:pointer;margin-bottom:7px;}
+.contact-line{font-size:.78rem;opacity:.5;font-style:italic;margin-top:6px;}
+/* EMAIL STEP */
+.email-note{font-size:.85rem;font-style:italic;opacity:.6;line-height:1.55;margin-bottom:18px;}
+canvas{display:none;}
+@media(max-width:380px){.snippets{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="prog"><div class="prog-fill" id="pf"></div></div>
+<div class="qwrap">
+
+<div class="step active" id="s-welcome">
+  <div class="w-woman"><svg width="140" height="220" viewBox="0 0 140 320" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#400026;opacity:.85" id="welcome-fig"></svg></div>
+  <h1 class="w-title">She already exists.<br>Let me find the words for her.</h1>
+  <p class="w-sub">You'll tell me who you are now, and who she is becoming. I'll write the day she lives — in detail so specific it will feel like memory.</p>
+  <button class="bnxt solo" onclick="go()">Begin →</button>
+</div>
+
+<div class="step" id="s-basics">
+  <div class="orb orb-wine"></div>
+  <div class="qlabel">First — who are you?</div>
+  <input class="field" type="text" placeholder="your name" oninput="A.name=this.value">
+  <div class="row2">
+    <div class="fg"><div class="flabel">Age</div><input class="field" type="number" placeholder="21" oninput="A.age=this.value"></div>
+    <div class="fg"><div class="flabel">Height</div><input class="field" type="text" placeholder="5'4&quot;" oninput="A.height=this.value"></div>
+  </div>
+  <div class="flabel">Where you live now</div>
+  <input class="field" type="text" placeholder="city, country" oninput="A.location=this.value">
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-ph1">
+  <div class="orb orb-warm"></div>
+  <div class="qlabel">Tell me what she looks like right now.</div>
+  <p class="qsub">You, as you are. Not who she's becoming yet — who she's starting from.</p>
+  <div class="cat-label">🎨 Skin tone</div>
+  <div class="msw-group" id="skin-g"></div>
+  <div class="cat-label">✦ Hair colour</div>
+  <div class="msw-group" id="hair-g"></div>
+  <div class="cat-label">〰 Hair texture</div>
+  <div class="pill-group" id="tex-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-ph2">
+  <div class="orb orb-warm"></div>
+  <div class="qlabel">Her body — as it is.</div>
+  <p class="qsub">No judgment. I need to know her so I can write her accurately and lovingly.</p>
+  <div class="cat-label">◌ Body type</div>
+  <div class="pill-group" id="body-g"></div>
+  <div class="flabel" style="margin-top:10px">Anything else? <span style="opacity:.45;font-style:italic">(stretch marks, moles, piercings, tattoos, birthmarks — the details that make her hers)</span></div>
+  <textarea class="field" placeholder="write freely..." oninput="A.bodyNote=this.value"></textarea>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-sex">
+  <div class="orb orb-purple"></div>
+  <div class="qlabel">Who is she drawn to?</div>
+  <p class="qsub">I ask because if love is part of her story, I want to write it right.</p>
+  <div class="pill-group" id="sex-g"></div>
+  <div class="flabel" style="margin-top:8px">Anything you'd like me to know about how she loves?</div>
+  <textarea class="field" style="min-height:60px" placeholder="optional..." oninput="A.sexNote=this.value"></textarea>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-pers">
+  <div class="orb orb-wine"></div>
+  <div class="qlabel">How would your friends describe you?</div>
+  <p class="qsub">Pick up to 4 — one from each group if you can.</p>
+  <div class="cat-label">⚡ Your energy</div>
+  <div class="pill-group" id="adj-vibe-g"></div>
+  <div class="cat-label">👯 Your role in the group</div>
+  <div class="pill-group" id="adj-role-g"></div>
+  <div class="cat-label">🧠 How your mind works</div>
+  <div class="pill-group" id="adj-mind-g"></div>
+  <div class="max-note" id="adj-note">0 of 4 selected</div>
+  <div class="cat-label" style="margin-top:18px">✦ Quirks she's known for <span style="font-family:'Caveat',cursive;font-size:.85rem;opacity:.6;text-transform:none;letter-spacing:0">(pick up to 3)</span></div>
+  <div class="pill-group" id="quirk-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-pets">
+  <div class="orb orb-gold"></div>
+  <div class="qlabel">Does she have a pet? Dream of one?</div>
+  <p class="qsub">Current or imagined. If none, just skip.</p>
+  <textarea class="field" style="min-height:65px" placeholder="a rescue greyhound named something dramatic, three cats, a horse on her land, a snake..." oninput="A.pets=this.value"></textarea>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-insec">
+  <div class="orb orb-purple"></div>
+  <div class="qlabel">What will she no longer carry?</div>
+  <p class="qsub">Select every weight she sets down — across every part of her life. Pick what's true, not everything.</p>
+  <div id="insec-container"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-prio">
+  <div class="orb orb-wine"></div>
+  <div class="qlabel">What does she build her life around?</div>
+  <p class="qsub">Choose up to 3 — tap in order of importance. The order matters for your story.</p>
+  <div class="p-hint" id="p-hint">0 of 3 chosen</div>
+  <div class="pcard-group" id="prio-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-career">
+  <div class="orb orb-gold"></div>
+  <div class="qlabel">Tell me about her work.</div>
+  <p class="qsub">What does she do? What did she risk or leave behind to get there?</p>
+  <div class="cat-label">📁 Her field</div>
+  <div class="pill-group" id="cf-g"></div>
+  <div class="flabel" style="margin-top:8px">What does she call what she does?</div>
+  <input class="field" type="text" placeholder="her title, in her own words" oninput="A.ctitle=this.value">
+  <div class="cat-label">↗ The big shift</div>
+  <div class="pill-group" id="cs-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-love">
+  <div class="orb orb-purple"></div>
+  <div class="qlabel">Tell me about the love she has.</div>
+  <p class="qsub">Not who — how. The feeling of it, the person in it.</p>
+  <div class="cat-label">💫 The feeling of this love</div>
+  <div class="pill-group" id="lf-g"></div>
+  <div class="cat-label">🌙 Their personality</div>
+  <div class="pill-group" id="lp-g"></div>
+  <div class="cat-label">↔ Their build</div>
+  <div class="pill-group" id="lb-g"></div>
+  <div class="cat-label">🤲 How they treat her</div>
+  <div class="pill-group" id="lt-g"></div>
+  <div class="flabel" style="margin-top:8px">A specific detail about them — a habit, a way they say her name</div>
+  <textarea class="field" style="min-height:60px" placeholder="optional but the best part..." oninput="A.lnote=this.value"></textarea>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-body">
+  <div class="orb orb-warm"></div>
+  <div class="qlabel">Her relationship with her body.</div>
+  <p class="qsub">Where she is now. Where she's going. Not a before-and-after — a conversation.</p>
+  <div class="cat-label">💧 Right now, this relationship is...</div>
+  <div class="pill-group" id="br-g"></div>
+  <div class="cat-label">✦ Her goal is not a size — it's a feeling</div>
+  <div class="pill-group" id="bg-g"></div>
+  <div class="cat-label">🏃 Movement she wants</div>
+  <div class="pill-group" id="bm-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-loc">
+  <div class="orb orb-gold"></div>
+  <div class="qlabel">Where in the world does she live?</div>
+  <p class="qsub">Be specific — or give me the texture of it.</p>
+  <div class="flabel">The place</div>
+  <input class="field" type="text" placeholder="Paris, Bali, Tokyo, somewhere coastal..." oninput="A.city=this.value">
+  <div class="cat-label">🗺 Landscape</div>
+  <div class="pill-group" id="ls-g"></div>
+  <div class="cat-label">🏠 Her home is</div>
+  <div class="pill-group" id="ht-g"></div>
+  <div class="cat-label">✦ Home must-haves</div>
+  <div class="pill-group" id="hm-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-inner">
+  <div class="orb orb-purple"></div>
+  <div class="qlabel">Her inner world.</div>
+  <p class="qsub">The spiritual and mental life she has built for herself.</p>
+  <div class="cat-label">🕯 Spiritual or meaning-making practices</div>
+  <div class="pill-group" id="sp-g"></div>
+  <div class="cat-label">🧘 What her mind feels like now</div>
+  <div class="pill-group" id="mn-g"></div>
+  <div class="flabel" style="margin-top:8px">Anything else about who she is inside?</div>
+  <textarea class="field" style="min-height:60px" placeholder="optional..." oninput="A.inote=this.value"></textarea>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-comm">
+  <div class="orb orb-wine"></div>
+  <div class="qlabel">The community she belongs to.</div>
+  <p class="qsub">The people she chose — not inherited.</p>
+  <div class="cat-label">👥 Who fills her world</div>
+  <div class="pill-group" id="cw-g"></div>
+  <div class="cat-label">✨ How she shows up in a room</div>
+  <div class="pill-group" id="cr-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-hob">
+  <div class="orb orb-gold"></div>
+  <div class="qlabel">What does she do that you don't do yet?</div>
+  <p class="qsub">Everything her life includes that yours hasn't started yet. Pick up to 8.</p>
+  <div id="hob-container"></div>
+  <div class="max-note" id="hob-note">0 of 8 selected</div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-food">
+  <div class="orb orb-warm"></div>
+  <div class="qlabel">How does she feed herself?</div>
+  <p class="qsub">Her rituals and her tastes go into the story.</p>
+  <div class="cat-label">☀ Breakfast</div>
+  <div class="pill-group" id="fb-g"></div>
+  <div class="cat-label">☕ Drink of choice</div>
+  <div class="pill-group" id="fd-g"></div>
+  <div class="cat-label">🌿 Lunch</div>
+  <div class="pill-group" id="fl-g"></div>
+  <div class="cat-label">🌙 Dinner cuisine</div>
+  <div class="pill-group" id="fdi-g"></div>
+  <div class="cat-label">🍮 Dessert</div>
+  <div class="pill-group" id="fde-g"></div>
+  <div class="cat-label">◌ She eats</div>
+  <div class="pill-group" id="ft-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-aes">
+  <div class="orb orb-gold"></div>
+  <div class="qlabel">Her life looks like...</div>
+  <p class="qsub">The visual texture of her days. The aesthetic she lives inside.</p>
+  <div class="aes-group" id="aes-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-viz">
+  <div class="viz-wrap">
+    <svg width="130" height="200" viewBox="0 0 140 320" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#E91FFF;opacity:.7;filter:drop-shadow(0 0 14px rgba(233,31,255,.3));margin-bottom:24px" id="viz-fig"></svg>
+    <p class="viz-title">Take a breath.<br>She's waiting.</p>
+    <p class="viz-sub">The next questions are about her energy — not her life. Go with what first lands in your body, not your head.</p>
+    <button class="bnxt" onclick="go()">I'm ready →</button>
+  </div>
+</div>
+
+<div class="step" id="s-aura-f">
+  <div class="orb orb-mag"></div>
+  <div class="qlabel">The colour she carries.</div>
+  <p class="qsub">When you picture her — not her favourite colour. The energy she radiates. Each pair shows dark and light of the same colour — pick either.</p>
+  <div class="color-pairs" id="aura-f-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-aura-n">
+  <div class="orb orb-purple"></div>
+  <div class="qlabel">The colour you feel like right now.</div>
+  <p class="qsub">Where you are — not where you're going. Both live inside the story.</p>
+  <div class="color-pairs" id="aura-n-g"></div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-iw">
+  <div class="orb orb-purple"></div>
+  <div class="qlabel">Her inner world — quickly now.</div>
+  <p class="qsub">Go with the first thing that lands.</p>
+  <div class="cat-label">⚡ She spends most energy</div>
+  <div class="pill-group" id="iw-e-g"></div>
+  <div class="cat-label">🌊 Her transformation felt like</div>
+  <div class="pill-group" id="iw-t-g"></div>
+  <div class="cat-label">✦ What she wants most — pick up to 3</div>
+  <div class="pill-group" id="iw-w-g"></div>
+  <div class="max-note" id="iw-note">0 of 3 selected</div>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-char">
+  <div class="orb orb-mag"></div>
+  <div class="qlabel">Name a character whose life you'd want to live.</div>
+  <p class="qsub">Movie, show, book, game, anime. Any character whose world you'd step into without hesitation.</p>
+  <input class="field" type="text" placeholder="character name + where they're from" oninput="A.char=this.value">
+  <div class="flabel">Why them? What is it about their life?</div>
+  <textarea class="field" placeholder="the freedom, the world, the way they're seen, what they get to do, the love they have..." oninput="A.charwhy=this.value"></textarea>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-quirky">
+  <div class="orb orb-gold"></div>
+  <div class="qlabel">The specifics of her life that nobody else would have.</div>
+  <p class="qsub">Write what's actually hers — the weird, the extravagant, the oddly specific. The stranger the better.</p>
+  <textarea class="field" style="min-height:120px" placeholder="some ideas to spark yours: a wardrobe that has its own room... a gem collection on every surface... a stable with rescue horses... skull decor and dark candles... a pool with a slide... custom jewellery she commissions herself... a home recording studio... a greenhouse she actually tends... a dildo collection, organised by colour... taxidermy... a vintage record player always on... write yours." oninput="A.quirky=this.value"></textarea>
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="go()">Continue →</button></div>
+</div>
+
+<div class="step" id="s-email">
+  <div class="orb orb-wine"></div>
+  <div class="qlabel">Almost there<span id="nm-span">, her</span>.</div>
+  <p class="email-note">Leave your email to see your result. I'll only use it to reach out personally — no lists, no spam.</p>
+  <div class="flabel">Your email</div>
+  <input class="field" type="email" id="uemail" placeholder="your@email.com" oninput="A.email=this.value">
+  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="buildResult()">Show me her →</button></div>
+</div>
+
+<div class="step" id="s-res">
+  <div class="res-hero">
+    <div class="res-aura" id="raura"></div>
+    <div class="res-name" id="rname">—</div>
+    <div class="archetype-label" id="rarch">—</div>
+  </div>
+  <div class="res-figure"><svg width="120" height="185" viewBox="0 0 140 320" fill="none" xmlns="http://www.w3.org/2000/svg" id="res-fig"></svg></div>
+  <div class="claim-box" id="claim-box" style="background:var(--wine)">
+    <div class="claim-label">A GLIMPSE OF HER</div>
+    <div class="claim-text" id="claim-text">—</div>
+  </div>
+  <div class="snippets" id="snippets"></div>
+  <div class="cta-wrap">
+    <div class="cta-title">Want her full story written for you?</div>
+    <div class="cta-sub">A custom manifestation story — her full day, from morning to night, written in your world, with your details. Personal. Yours alone.</div>
+    <button class="btn-cta" id="cta-btn">I want my full story →</button>
+    <button class="btn-sec" id="share-btn">📤 Share my result</button>
+    <p class="contact-line" id="cline">reach me at: @YOURINSTAGRAM</p>
+  </div>
+</div>
+
+</div>
+<canvas id="share-canvas"></canvas>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────
+const A={name:'',age:'',height:'',location:'',skinTone:'',hairColor:'',hairHex:'',hairTex:'',bodyType:'',bodyNote:'',sexuality:'',sexNote:'',adjectives:[],quirks:[],pets:'',insecurities:[],priorities:[],cfield:'',ctitle:'',cshift:'',lfeel:[],lpersonality:[],lbuild:'',ltreats:[],lnote:'',bodyRel:'',bodyGoal:'',bodyMove:[],city:'',landscape:'',homeType:'',homeMH:[],spiritual:[],mental:[],inote:'',commWho:[],commRoom:'',hobbies:[],breakfast:[],drinks:'',lunch:'',dinner:[],dessert:[],foodType:'',aesthetic:'',auraF:'',auraFN:'',auraN:'',auraNName:'',iwEnergy:'',iwTransform:'',iwWants:[],char:'',charwhy:'',quirky:'',email:''};
+
+const SKINS=[{v:'fair',c:'#FDDBB4'},{v:'light',c:'#F4C896'},{v:'medium warm',c:'#E8A87C'},{v:'tan',c:'#C88050'},{v:'deep warm',c:'#A0622A'},{v:'deep',c:'#7B4020'},{v:'very deep',c:'#3C1A08'}];
+const HAIRS=[{v:'jet black',c:'#100800'},{v:'dark brown',c:'#3B2015'},{v:'medium brown',c:'#7B4B2A'},{v:'caramel',c:'#C07840'},{v:'golden',c:'#D4A040'},{v:'red',c:'#CC2222'},{v:'auburn',c:'#8B3A20'},{v:'platinum',c:'#E8E0C8'},{v:'grey',c:'#B0B0B0'},{v:'blue',c:'#1A50A0'},{v:'green',c:'#1A8040'},{v:'purple',c:'#7020B0'},{v:'pink',c:'#E040A0'},{v:'mixed',c:'conic-gradient(#CC2222,#7020B0,#1A50A0)'}];
+const TEXTURES=['Straight','Wavy','Loose curly','Tight curly','Coily / 4c','Fine and silky','Thick and dense'];
+const BODYTYPES=['Petite','Lean','Slim','Athletic','Average build','Curvy','Full-figured','Pear-shaped','Hourglass','Rectangle'];
+const SEXUALITIES=['Straight','Gay / Lesbian','Bisexual','Pansexual','Demisexual','Questioning / exploring','Prefer not to say'];
+const ADJ_VIBE=['Dramatic','Chaotic','Calm and steady','Intense','Bubbly','Quiet','Wild','Collected'];
+const ADJ_ROLE=['Mother of the group','The serious one','The funny one','The planner','The wild card','Emotional support','The honest one','The advice-giver','The free spirit','The enabler','The one who disappears and comes back'];
+const ADJ_MIND=['Overthinker','Big picture only','Detail-obsessed','Intuitive before logical','Analytical','Creative chaos','Logical first','Dreamer'];
+const QUIRKS=['Always late but worth it','Has opinions about everything','Cries at ads and films','Never does anything casually','Starts ten projects at once','Remembers everything forever','Laughs too loudly','Cannot follow a recipe','Obsessively collects things','Rearranges furniture at 1am','Befriends strangers immediately','Has 47 tabs open always','Buys things in sets','Reads the last page first'];
+
+const INSECURITIES={
+  '🪞 Physical':[
+    'The weight of her current appearance','The belief that her body is not enough as it is','The way she looks in photos','The skin she lives in','Her height — too much or not enough','The way she carries herself — like she\'s apologising'
+  ],
+  '🧠 Emotional & Mental':[
+    'The feeling that she is never quite enough','The anxiety that lives in her chest','The dark moods she cannot always explain','Her sensitivity — the way she feels everything twice','Intrusive thoughts that feel like truth','The belief that she needs to earn rest'
+  ],
+  '👥 Social':[
+    'The fear of not being liked or chosen','The voice that goes quiet in groups','The feeling of being too much for most people','Friendships that never quite go deep enough','The sense of being slightly outside every room she enters','Being perceived as someone she isn\'t'
+  ],
+  '💰 Financial':[
+    'The shame of not earning enough yet','Being financially dependent on anyone else','The fear of always being behind','The belief that financial freedom is for other people','Feeling overwhelmed by money decisions'
+  ],
+  '🌹 Sensual & Intimate':[
+    'The relationship she has with her own desire','Not feeling desirable in her own skin','Shame around what she actually wants','The parts of herself she only shows in the dark','The gap between what she wants and what she lets herself have'
+  ],
+  '🌿 Spiritual & Purpose':[
+    'The feeling that she has no real purpose','The disconnection from something she cannot name','Guilt around what she believes (or doesn\'t)','The sense that she is spiritually incomplete'
+  ],
+  '🌱 Growth & Responsibility':[
+    'The belief that she is not being responsible enough','The weight of other people\'s expectations she\'s been carrying','The feeling of being a burden to people she loves','The gap between who she is and who she feels she should be','The terror of wasting the time she has'
+  ]
+};
+
+const PRIORITIES=[{v:'career',icon:'✦',l:'Career & Craft'},{v:'love',icon:'♡',l:'Love & Partnership'},{v:'body',icon:'❋',l:'Body & Health'},{v:'location',icon:'◎',l:'Where I Live'},{v:'inner',icon:'☽',l:'My Inner World'},{v:'community',icon:'❂',l:'Community'}];
+
+const CFIELDS=['Film & Media','Business & Entrepreneurship','Arts & Illustration','Writing & Literature','Wellness & Healing','Fashion & Styling','Research & Academia','Technology & Engineering','Medicine & Healthcare','Finance & Investment','Law & Policy','Real Estate','Music & Performing Arts','Sports & Athletics','Education & Teaching','Interior Design','Food & Culinary Arts','Psychology & Mental Health','Social Work','Marketing & Creative Direction','Architecture','Something I\'m still discovering'];
+const CSHIFTS=['Changing fields entirely','Moving abroad for it','Building something of my own','Becoming publicly recognised for it','Stepping in front of audiences','Founding something that outlasts me','Growing within what I already know'];
+const LFEELS=['Home — steady, quiet, chosen every day','Adventure — pulls her into the world','Mirror — truly sees her mind','Freedom within closeness — she never shrinks','Passion first, everything else second','Unconditional — no conditions, no keeping score'];
+const LPERS=['Emotionally intelligent','Funny in a specific way','Ambitious','Gentle and patient','Protective','Intellectually curious','Spontaneous','Grounding and stable','Creative','Blunt and honest','Wild and unpredictable','Deeply empathetic','Strange in a way that matches hers','Confident without being loud'];
+const LBUILDS=['Lean','Athletic','Muscular','Average','Tall','Short','Curvy','Doesn\'t matter at all'];
+const LTREATS=['Remembers small things about her','Challenges her thinking','Gives space without disappearing','Makes her laugh every day','Shows up without being asked','Is proud of her publicly','Never tries to fix her','Treats her like the main character'];
+const BODYRELS=['At war with it','Just coexisting — neutral','Beginning to make peace','Mostly at peace','Grateful and loving it'];
+const BODYGOALS=['Stronger and more capable','More energised from the inside','More flexible and fluid','More at home in it','More visible and confident in it','Healthier — for the long run'];
+const BODYMOVE=['Yoga or pilates','Weight training','Dancing','Swimming','Running or walking','Martial arts','Horse riding','Cycling','Climbing'];
+const LANDSCAPES=['Big city — fast, global, anonymous','Cultural city — slower, artistic, specific','Countryside — wide sky, green, quiet','Coastal — sea air, water always nearby','Mountains — altitude and silence','Forest — secluded, wild, private'];
+const HOMETYPES=['A studio apartment (just hers)','A spacious apartment','A house with a garden','A loft with high ceilings','A cottage or countryside home','A villa or estate','Wherever she is feels like home'];
+const HOMEMUS=['Floor-to-ceiling bookshelves','A space just for creating','Natural light everywhere','A real bath (not just a shower)','Space to host people','A view worth looking at','Plants everywhere','A wardrobe that has its own room','A reading nook','High ceilings'];
+const SPIRITUALS=['Daily meditation','Prayer or devotion','Tarot or oracle cards','Astrology (deeply)','Journaling as spiritual practice','Being in nature intentionally','Dream journaling','None — finds meaning in other ways','Open to exploring'];
+const MENTALS=['Quiet — genuinely calm','Clear — no noise she didn\'t choose','Creative — ideas arrive freely','Purposeful — knows why she does things','Healed — old things don\'t live rent-free','Regulated — emotions move through her, not over her'];
+const COMMWHO=['Artists and creatives','Ambitious women who don\'t compete','Quiet intellectuals','People who make things','International and diverse','A small, deeply known circle','One person who knows everything','A mix — many different worlds'];
+const COMMROOM=['Enters and people feel it','The one everyone always finds','Moves quietly but leaves an impression','Starts the real conversations','Belongs everywhere without trying'];
+
+const HOBBIES={
+  '🏊 Sports & Physical':['Swimming','Yoga or pilates','Dancing (classes or alone)','Horse riding','Polo or golf','Rock climbing','Hiking or trekking','Martial arts','Cycling'],
+  '📖 Introspective':['Journaling daily','Meditation','Dream journaling','Reading philosophy','Tarot or astrology','Deep therapy or inner work','Studying mysticism'],
+  '🎤 Confidence & Social':['Speaking at events or panels','Hosting dinner parties','Networking in her field','Recording herself / content creation','Making friends with strangers easily'],
+  '🎓 Learning':['A new language','Financial literacy and investing','A music instrument','Film theory or art history','Cooking at a serious level'],
+  '✈ High-End & Cultural':['Wine or food tasting','Fine dining regularly','Theatre, opera, ballet','Travelling solo or first class'],
+  '🎨 Creative & Craft':['Crocheting or knitting','Painting or illustration','Pottery or ceramics','Embroidery or sewing','Writing fiction','Photography']
+};
+
+const FOODBS=['Pastries and coffee','Eggs and protein','Smoothie or açaí bowl','Sweet yogurt','Full cooked breakfast','Avocado toast','Indian breakfast (poha, paratha...)','Skips it — intermittent fasting'];
+const FOODD=['Iced coffee','Hot chai / masala tea','Matcha','Black coffee always','Fresh juice','Wine or cocktails (the evening one counts)','Bubble tea','Just water'];
+const FOODL=['Quick and light','Big comfort meal','A salad or grain bowl','Street food','Whatever she can find','She skips it honestly'];
+const FOODDI=['Indian','Italian','Japanese','Thai / Southeast Asian','Korean','Middle Eastern','Mexican','French','Mediterranean','Chinese','Ethiopian','American comfort food','Whatever she feels like'];
+const FOODDE=['Always dessert — non-negotiable','Only when she truly wants it','Something specific (write it below)','She is the dessert'];
+const FOODTYPES=['Vegetarian','Non-vegetarian','Vegan','Flexitarian'];
+
+const AESTHETICS=[
+  {v:'paris',name:'Paris apartment',sub:'edit out everything that doesn\'t earn its place'},
+  {v:'maximalist',name:'Warm maximalist',sub:'every surface tells you something about her'},
+  {v:'academia',name:'Dark academia',sub:'books, candlelight, the smell of old paper'},
+  {v:'luxury',name:'Soft luxury',sub:'everything feels expensive without trying'},
+  {v:'elegant',name:'Structured elegance',sub:'even her Tuesday looks intentional'},
+  {v:'chaotic',name:'Chaotic creative',sub:'always mid-project, beautiful mess'}
+];
+
+const COLOR_PAIRS=[
+  {hue:'Red',dark:{v:'#CC1122',n:'Crimson'},light:{v:'#FFB5B5',n:'Blush'}},
+  {hue:'Wine',dark:{v:'#400026',n:'Blood Wine'},light:{v:'#ECC0CC',n:'Rose Quartz'}},
+  {hue:'Berry',dark:{v:'#7A1548',n:'Berry'},light:{v:'#F9C0D4',n:'Petal'}},
+  {hue:'Purple',dark:{v:'#5B1A9F',n:'Violet'},light:{v:'#D4B8F0',n:'Lavender'}},
+  {hue:'Blue',dark:{v:'#1A3A9F',n:'Cobalt'},light:{v:'#B8D4FF',n:'Sky Blue'}},
+  {hue:'Teal',dark:{v:'#1A6060',n:'Deep Teal'},light:{v:'#B0E8E0',n:'Mint'}},
+  {hue:'Green',dark:{v:'#1A5C2A',n:'Forest'},light:{v:'#B8E8C0',n:'Sage'}},
+  {hue:'Olive',dark:{v:'#4A5010',n:'Olive'},light:{v:'#D8E0A8',n:'Pistachio'}},
+  {hue:'Yellow',dark:{v:'#A07800',n:'Amber'},light:{v:'#FFF3A8',n:'Butter'}},
+  {hue:'Orange',dark:{v:'#D45A00',n:'Tangerine'},light:{v:'#FFD5A8',n:'Apricot'}},
+  {hue:'Brown',dark:{v:'#5C2A08',n:'Coffee'},light:{v:'#E8D4B8',n:'Latte'}},
+  {hue:'Black',dark:{v:'#1A1A1A',n:'Obsidian'},light:{v:'#D8D8D8',n:'Silver'}}
+];
+
+const IW_ENERGY=['Deeply inside her own mind','Moving between inner and outer worlds','Out in the world, creating energy'];
+const IW_TRANSFORM=['A slow, inevitable unfolding','One bold moment everything changed around','A quiet realisation she\'d already arrived'];
+const IW_WANTS=['Understood — completely, without effort','Admired — for exactly who she is','Credible — taken seriously in the right rooms','Desired — and not apologising for wanting it','Free — no one\'s expectations on her back','At peace with herself — genuinely','Worthy — of everything she wants','Respected — not just liked','Non-conforming — different and proud','Accepted exactly as she is','Self-reliant — needing no one to confirm her'];
+
+// ── SVG FIGURES ──────────────────────────────────────────────────────────
+const HEAD=`<path d="M58,24 C52,20 40,26 34,46 C28,66 30,95 38,125 C41,135 44,142 46,148" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M82,24 C88,20 100,26 106,46 C112,66 110,95 102,125 C99,135 96,142 94,148" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M56,26 C62,18 78,18 84,26" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="70" cy="42" rx="15" ry="19" stroke="currentColor" stroke-width="1.5"/><path d="M62,61 L59,76" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M78,61 L81,76" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`;
+const ARMS_DEFAULT=`<path d="M59,76 C48,80 36,90 32,106 C28,118 30,132 34,145" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M81,76 C92,80 104,90 108,106 C112,118 110,132 106,145" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>`;
+
+const FIGS={
+  paris:HEAD+ARMS_DEFAULT+`<path d="M59,76 C56,84 54,95 53,110 C51,125 52,138 54,150 C55,162 52,175 48,195 C44,215 41,240 40,265 C39,278 39,295 40,310" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M81,76 C84,84 86,95 87,110 C89,125 88,138 86,150 C85,162 88,175 92,195 C96,215 99,240 100,265 C101,278 101,295 100,310" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M53,118 C60,121 80,121 87,118" stroke="currentColor" stroke-width="0.6" opacity="0.4"/><path d="M40,310 C55,316 85,316 100,310" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`,
+  maximalist:HEAD+ARMS_DEFAULT+`<path d="M59,76 C55,84 50,96 47,112 C43,130 40,150 38,170 C33,196 26,222 22,248 C18,268 18,288 22,308 C25,314 30,318 36,320" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M81,76 C85,84 90,96 93,112 C97,130 100,150 102,170 C107,196 114,222 118,248 C122,268 122,288 118,308 C115,314 110,318 104,320" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M53,120 C60,123 80,123 87,120" stroke="currentColor" stroke-width="0.6" opacity="0.4"/><path d="M36,320 C55,328 85,328 104,320" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`,
+  academia:HEAD+ARMS_DEFAULT+`<path d="M59,76 C56,84 54,95 53,110 C51,125 52,138 54,150 C55,162 52,175 50,196 C48,216 46,242 47,268 C47,282 48,295 50,310" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M81,76 C84,84 86,95 87,110 C89,125 88,138 86,150 C85,162 88,175 90,196 C92,216 94,242 93,268 C93,282 92,295 90,310" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><rect x="22" y="148" width="18" height="26" rx="1" stroke="currentColor" stroke-width="1"/><path d="M31,148 L31,174" stroke="currentColor" stroke-width="0.6"/><path d="M50,310 C62,316 78,316 90,310" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`,
+  luxury:HEAD+ARMS_DEFAULT+`<path d="M59,76 C54,84 48,96 43,114 C38,134 35,155 33,178 C29,205 25,232 22,260 C19,280 20,298 24,312 C27,320 34,324 42,325" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M81,76 C86,84 92,96 97,114 C102,134 105,155 107,178 C111,205 115,232 118,260 C121,280 120,298 116,312 C113,320 106,324 98,325" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M53,122 C60,125 80,125 87,122" stroke="currentColor" stroke-width="0.6" opacity="0.35"/><path d="M42,325 C60,334 80,334 98,325" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`,
+  elegant:HEAD+ARMS_DEFAULT+`<path d="M59,76 C57,84 56,96 55,110 C54,125 54,140 55,155 C56,170 54,185 51,202 C48,220 47,244 47,268 C47,282 48,296 49,310" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M81,76 C83,84 84,96 85,110 C86,125 86,140 85,155 C84,170 86,185 89,202 C92,220 93,244 93,268 C93,282 92,296 91,310" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M55,110 L85,110" stroke="currentColor" stroke-width="0.7" opacity="0.3"/><path d="M49,310 C62,316 78,316 91,310" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`,
+  chaotic:HEAD+`<path d="M59,76 C48,80 36,90 32,106 C28,118 30,132 34,145" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M81,76 C90,72 102,64 110,58 C115,55 118,52 116,50" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M110,40 L118,55" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M59,76 C55,84 52,96 50,112 C47,130 46,150 46,170 C45,195 43,222 42,250 C41,268 42,286 44,308" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M81,76 C84,84 87,96 89,112 C92,130 93,150 93,170 C94,195 96,222 97,250 C98,268 97,286 95,308" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M44,308 C58,316 82,316 95,308" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`
+};
+
+// ── ARCHETYPES ────────────────────────────────────────────────────────────
+const ARCHETYPES={
+  visionary:{name:'The Visionary',claim:`You process the world in layers most people never reach. The version of you that's coming has stopped apologising for the depth of it — stopped softening the intelligence, stopped pre-editing the thoughts before they land. She moves with a kind of certainty that isn't arrogance; it's just that she's finally started trusting the mind she's been living inside all along. The world doesn't know what to do with women who think this clearly. That's not your problem.`},
+  catalyst:{name:'The Catalyst',claim:`You are built to build things. Not maintain, not manage — build. The career she has is something she made from something that didn't exist before her, and the whole industry knows it without quite knowing why. She walks into rooms as a statement and leaves as a memory. The most dangerous thing you could do is stay small for one more year.`},
+  architect:{name:'The Architect',claim:`You design your life the way other people design buildings — with intention at every level. The elegant one doesn't just look good; she works, flows, functions in ways people can feel but can't explain. She's been called cold. What she actually is: precise. And the difference between those two things is the whole story.`},
+  muse:{name:'The Muse',claim:`You love with a specific, inconvenient, embarrassing depth and you have spent years trying to file that down. Don't. The version of you that's coming has stopped apologising for how intensely she feels things. She is loved exactly how she always suspected she deserved to be. It took a while to find someone who could handle the actual size of her.`},
+  explorer:{name:'The Explorer',claim:`You belong to more geography than this. You always have. The version of you that's coming has a passport that looks like a diary — full of places that changed her, none of which she regrets. She is not running away from anything. She's running towards the version of herself that only exists somewhere else, and she has the audacity to go find her.`},
+  embodied:{name:'The Embodied',claim:`She has stopped fighting the first home she was ever given. This isn't a fitness story. It isn't a before-and-after. It is a woman learning to live in her body like she has a right to be there — which she does, which she always did. The version of you that's coming takes up the right amount of space. Exactly hers.`},
+  sovereign:{name:'The Sovereign',claim:`You change rooms by walking into them. Not dramatically — just irrevocably. People remember you even when they can't say why. The version of you that's coming has stopped waiting for permission to build the table — she started building it years ago and people have been showing up ever since. Your community doesn't just love you. They are shaped by you.`},
+  creator:{name:'The Creator',claim:`You make things that didn't exist before you made them, and the world is genuinely better for it. She doesn't follow the creative brief — she writes it. She doesn't fit the industry — she becomes the thing the industry adjusts to. The work is hers in a way that very few people's work is actually theirs. She knows it. And she stopped being embarrassed about knowing it.`}
+};
+
+function getArchetype(){
+  const p1=A.priorities[0];
+  const aes=A.aesthetic;
+  const cf=A.cfield;
+  if(p1==='inner') return ARCHETYPES.visionary;
+  if(p1==='community') return ARCHETYPES.sovereign;
+  if(p1==='love') return ARCHETYPES.muse;
+  if(p1==='location') return ARCHETYPES.explorer;
+  if(p1==='body') return ARCHETYPES.embodied;
+  if(p1==='career'){
+    const creative=['Arts & Illustration','Film & Media','Music & Performing Arts','Writing & Literature'];
+    if(creative.some(f=>cf.includes(f.split(' ')[0]))||aes==='chaotic') return ARCHETYPES.creator;
+    if(['elegant','paris'].includes(aes)) return ARCHETYPES.architect;
+    return ARCHETYPES.catalyst;
+  }
+  return ARCHETYPES.visionary;
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+const BASE=['welcome','basics','ph1','ph2','sex','pers','pets','insec','prio'];
+const TAIL=['hob','food','aes','viz','aura-f','aura-n','iw','char','quirky','email','res'];
+let ORDER=[],curI=0;
+
+function buildOrder(){
+  const s=[...BASE];
+  if(A.priorities.includes('career')) s.push('career');
+  if(A.priorities.includes('love')) s.push('love');
+  if(A.priorities.includes('body')) s.push('body');
+  if(A.priorities.includes('location')) s.push('loc');
+  if(A.priorities.includes('inner')) s.push('inner');
+  if(A.priorities.includes('community')) s.push('comm');
+  s.push(...TAIL);
+  ORDER=s;
+}
+
+function show(i){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+ORDER[i]).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  // update progress
+  const pct=ORDER[i]==='res'?100:(i/(ORDER.length-2))*100;
+  document.getElementById('pf').style.width=pct+'%';
+}
+function go(){
+  if(ORDER[curI]==='prio') buildOrder();
+  if(curI<ORDER.length-1){curI++;show(curI);}
+  const nm=document.getElementById('nm-span');
+  if(nm) nm.textContent=A.name?', '+A.name:' her';
+}
+function bk(){if(curI>0){curI--;show(curI);}}
+
+// ── BUILDERS ──────────────────────────────────────────────────────────────
+function mkPill(label,key,multi,container,val,maxCount){
+  const v=val||label;
+  const b=document.createElement('button');
+  b.className='pill';b.textContent=label;
+  b.onclick=()=>{
+    if(multi){
+      if(!b.classList.contains('sel')&&maxCount&&A[key].length>=maxCount) return;
+      b.classList.toggle('sel');
+      if(b.classList.contains('sel')){if(!A[key].includes(v))A[key].push(v);}
+      else A[key]=A[key].filter(x=>x!==v);
+      if(maxCount) updateMax(container,key,maxCount);
+    } else {
+      container.querySelectorAll('.pill').forEach(p=>p.classList.remove('sel'));
+      b.classList.add('sel');A[key]=v;
+    }
+  };
+  container.appendChild(b);
+}
+
+function updateMax(container,key,max){
+  const note=container.nextElementSibling;
+  if(note&&note.classList.contains('max-note'))
+    note.textContent=`${A[key].length} of ${max} selected`;
+  if(A[key].length>=max){
+    container.querySelectorAll('.pill:not(.sel)').forEach(p=>p.classList.add('dimmed'));
+  } else {
+    container.querySelectorAll('.pill.dimmed').forEach(p=>p.classList.remove('dimmed'));
+  }
+}
+
+function buildPills(cid,items,key,multi=false,max=0){
+  const c=document.getElementById(cid);if(!c)return;
+  items.forEach(item=>{
+    const label=typeof item==='string'?item:item.l||item.v;
+    const val=typeof item==='string'?item:(item.v||item.l);
+    mkPill(label,key,multi,c,val,max||0);
+  });
+}
+
+function buildMSW(cid,items,hkey,hexkey){
+  const c=document.getElementById(cid);if(!c)return;
+  items.forEach(item=>{
+    const d=document.createElement('div');
+    d.className='msw';d.title=item.v;d.style.background=item.c;
+    d.onclick=()=>{c.querySelectorAll('.msw').forEach(s=>s.classList.remove('sel'));d.classList.add('sel');A[hkey]=item.v;if(hexkey)A[hexkey]=item.c;};
+    c.appendChild(d);
+  });
+}
+
+function buildColorPairs(cid,auraKey){
+  const c=document.getElementById(cid);if(!c)return;
+  COLOR_PAIRS.forEach(pair=>{
+    const wrapper=document.createElement('div');wrapper.className='color-pair';
+    const circles=document.createElement('div');circles.className='pair-circles';
+    [pair.dark,pair.light].forEach(col=>{
+      const circle=document.createElement('div');
+      circle.className='pair-c';
+      circle.style.background=col.v;
+      circle.title=col.n;
+      circle.dataset.auraKey=auraKey;
+      circle.onclick=()=>{
+        document.querySelectorAll(`[data-aura-key="${auraKey}"]`).forEach(el=>el.classList.remove('sel'));
+        circle.classList.add('sel');
+        A[auraKey]=col.v;A[auraKey+'N']=col.n;
+      };
+      circles.appendChild(circle);
+    });
+    const hue=document.createElement('div');hue.className='pair-hue';hue.textContent=pair.hue;
+    wrapper.append(circles,hue);
+    c.appendChild(wrapper);
+  });
+}
+
+function buildInsecurities(){
+  const c=document.getElementById('insec-container');
+  Object.entries(INSECURITIES).forEach(([cat,items])=>{
+    const h=document.createElement('div');h.className='cat-label';h.textContent=cat;c.appendChild(h);
+    const g=document.createElement('div');g.className='pill-group';
+    items.forEach(item=>{
+      const b=document.createElement('button');b.className='pill';b.textContent=item;
+      b.onclick=()=>{
+        b.classList.toggle('sel');
+        if(b.classList.contains('sel')){if(!A.insecurities.includes(item))A.insecurities.push(item);}
+        else A.insecurities=A.insecurities.filter(x=>x!==item);
+      };
+      g.appendChild(b);
+    });
+    c.appendChild(g);
+  });
+}
+
+function buildHobbies(){
+  const c=document.getElementById('hob-container');
+  Object.entries(HOBBIES).forEach(([cat,items])=>{
+    const h=document.createElement('div');h.className='cat-label';h.textContent=cat;c.appendChild(h);
+    const g=document.createElement('div');g.className='pill-group';
+    items.forEach(item=>{
+      const b=document.createElement('button');b.className='pill';b.textContent=item;
+      b.onclick=()=>{
+        if(!b.classList.contains('sel')&&A.hobbies.length>=8) return;
+        b.classList.toggle('sel');
+        if(b.classList.contains('sel')){if(!A.hobbies.includes(item))A.hobbies.push(item);}
+        else A.hobbies=A.hobbies.filter(x=>x!==item);
+        document.getElementById('hob-note').textContent=`${A.hobbies.length} of 8 selected`;
+        const allPills=document.querySelectorAll('#hob-container .pill');
+        if(A.hobbies.length>=8) allPills.forEach(p=>{if(!p.classList.contains('sel'))p.classList.add('dimmed');});
+        else allPills.forEach(p=>p.classList.remove('dimmed'));
+      };
+      g.appendChild(b);
+    });
+    c.appendChild(g);
+  });
+}
+
+function buildPriorities(){
+  const c=document.getElementById('prio-g');
+  PRIORITIES.forEach(p=>{
+    const card=document.createElement('div');card.className='pcard';card.dataset.val=p.v;
+    card.innerHTML=`<span class="picon">${p.icon}</span>${p.l}<span class="pnum"></span>`;
+    card.onclick=()=>{
+      const idx=A.priorities.indexOf(p.v);
+      if(idx>-1){A.priorities.splice(idx,1);card.classList.remove('sel');updatePrioUI();}
+      else if(A.priorities.length<3){A.priorities.push(p.v);card.classList.add('sel');updatePrioUI();}
+    };
+    c.appendChild(card);
+  });
+}
+
+function updatePrioUI(){
+  document.querySelectorAll('#prio-g .pcard').forEach(card=>{
+    const v=card.dataset.val;
+    const idx=A.priorities.indexOf(v);
+    card.querySelector('.pnum').textContent=idx>-1?idx+1:'';
+  });
+  document.getElementById('p-hint').textContent=`${A.priorities.length} of 3 chosen`;
+}
+
+function buildAesthetics(){
+  const c=document.getElementById('aes-g');
+  AESTHETICS.forEach(a=>{
+    const card=document.createElement('div');card.className='aes-card';
+    card.innerHTML=`<span class="aes-name">${a.name}</span><span class="aes-sub">${a.sub}</span>`;
+    card.onclick=()=>{c.querySelectorAll('.aes-card').forEach(x=>x.classList.remove('sel'));card.classList.add('sel');A.aesthetic=a.v;};
+    c.appendChild(card);
+  });
+}
+
+function buildAdjGroups(){
+  const adjGroups=[
+    {id:'adj-vibe-g',items:ADJ_VIBE,key:'adjectives',max:4},
+    {id:'adj-role-g',items:ADJ_ROLE,key:'adjectives',max:4},
+    {id:'adj-mind-g',items:ADJ_MIND,key:'adjectives',max:4}
+  ];
+  adjGroups.forEach(g=>{
+    const c=document.getElementById(g.id);if(!c)return;
+    g.items.forEach(item=>{
+      const b=document.createElement('button');b.className='pill';b.textContent=item;
+      b.onclick=()=>{
+        if(!b.classList.contains('sel')&&A.adjectives.length>=4) return;
+        b.classList.toggle('sel');
+        if(b.classList.contains('sel')){if(!A.adjectives.includes(item))A.adjectives.push(item);}
+        else A.adjectives=A.adjectives.filter(x=>x!==item);
+        document.getElementById('adj-note').textContent=`${A.adjectives.length} of 4 selected`;
+        const all=document.querySelectorAll('#adj-vibe-g .pill,#adj-role-g .pill,#adj-mind-g .pill');
+        if(A.adjectives.length>=4) all.forEach(p=>{if(!p.classList.contains('sel'))p.classList.add('dimmed');});
+        else all.forEach(p=>p.classList.remove('dimmed'));
+      };
+      c.appendChild(b);
+    });
+  });
+}
+
+function buildIWWants(){
+  const c=document.getElementById('iw-w-g');
+  IW_WANTS.forEach(item=>{
+    const b=document.createElement('button');b.className='pill';b.textContent=item;
+    b.onclick=()=>{
+      if(!b.classList.contains('sel')&&A.iwWants.length>=3) return;
+      b.classList.toggle('sel');
+      if(b.classList.contains('sel')){if(!A.iwWants.includes(item))A.iwWants.push(item);}
+      else A.iwWants=A.iwWants.filter(x=>x!==item);
+      document.getElementById('iw-note').textContent=`${A.iwWants.length} of 3 selected`;
+      const all=document.querySelectorAll('#iw-w-g .pill');
+      if(A.iwWants.length>=3) all.forEach(p=>{if(!p.classList.contains('sel'))p.classList.add('dimmed');});
+      else all.forEach(p=>p.classList.remove('dimmed'));
+    };
+    c.appendChild(b);
+  });
+}
+
+// ── RESULTS ───────────────────────────────────────────────────────────────
+function buildResult(){
+  if(!A.email){alert('Please enter your email to see your result.');return;}
+  const arch=getArchetype();
+  const n=A.name||'her';
+  const aura=A.auraF||'#400026';
+
+  document.getElementById('rname').textContent=n;
+  document.getElementById('rarch').textContent=arch.name.toUpperCase();
+  document.getElementById('raura').style.background=aura;
+  document.getElementById('claim-text').textContent=arch.claim;
+
+  // figure based on aesthetic
+  const figKey=A.aesthetic||'paris';
+  const resFig=document.getElementById('res-fig');
+  resFig.innerHTML=FIGS[figKey]||FIGS.paris;
+  resFig.style.color=aura;
+
+  // snippets
+  const snips=[];
+  if(A.priorities[0]) snips.push({l:'Her first priority',t:A.priorities[0]+': '+({career:'building work that outlasts her',love:'the love she finally has',body:'the body she lives in now',location:'where she belongs in the world',inner:'the peace she\'s built inside',community:'the people she chose'}[A.priorities[0]]||'')});
+  if(A.char) snips.push({l:'Her character twin',t:A.char});
+  if(A.auraFN) snips.push({l:'Her aura',t:A.auraFN});
+  if(A.adjectives.length) snips.push({l:'How others describe her',t:A.adjectives.join(', ')});
+  if(A.aesthetic) snips.push({l:'The texture of her life',t:({paris:'Paris apartment — edited to perfection',maximalist:'Warm maximalist — full and deliberately so',academia:'Dark academia — candlelit and bookmarked',luxury:'Soft luxury — effortlessly expensive',elegant:'Structured elegance — every detail intentional',chaotic:'Chaotic creative — always mid-making something'}[A.aesthetic]||A.aesthetic)});
+  if(A.iwWants.length) snips.push({l:'What she wants to be',t:A.iwWants.join(' · ')});
+
+  const snipCont=document.getElementById('snippets');
+  snipCont.innerHTML='';
+  snips.slice(0,6).forEach(s=>{
+    const d=document.createElement('div');d.className='snippet';
+    d.innerHTML=`<div class="sn-label">${s.l}</div><div class="sn-text">${s.t}</div>`;
+    snipCont.appendChild(d);
+  });
+
+  // CTA wiring
+  const igHandle='sh.rik.aa';
+  document.getElementById('cta-btn').onclick=()=>{
+    window.open(`https://ig.me/m/${igHandle}`,'_blank');
+  };
+  document.getElementById('share-btn').onclick=()=>generateShareCard(n,arch.name,aura,arch.claim);
+  document.getElementById('cline').textContent=`reach me: @${igHandle}`;
+
+  go();
+}
+
+// ── SHARE CARD ───────────────────────────────────────────────────────────
+function generateShareCard(name,archName,auraColor,claim){
+  const canvas=document.getElementById('share-canvas');
+  canvas.width=1080;canvas.height=1080;
+  const ctx=canvas.getContext('2d');
+
+  ctx.fillStyle='#FEF5E9';ctx.fillRect(0,0,1080,1080);
+  ctx.fillStyle=auraColor;ctx.globalAlpha=.13;ctx.fillRect(0,0,1080,1080);ctx.globalAlpha=1;
+  ctx.strokeStyle=auraColor;ctx.lineWidth=8;ctx.strokeRect(30,30,1020,1020);
+
+  ctx.fillStyle=auraColor;ctx.font='bold 42px Georgia,serif';ctx.textAlign='center';
+  ctx.fillText(archName.toUpperCase(),540,130);
+
+  ctx.fillStyle='#2A1A0E';ctx.font='italic 66px Georgia,serif';
+  ctx.fillText(name,540,215);
+
+  ctx.strokeStyle=auraColor;ctx.lineWidth=1;ctx.globalAlpha=.3;
+  ctx.beginPath();ctx.moveTo(140,255);ctx.lineTo(940,255);ctx.stroke();ctx.globalAlpha=1;
+
+  ctx.font='26px Georgia,serif';ctx.fillStyle='#2A1A0E';
+  const words=claim.substring(0,200).split(' ');
+  let line='',y=310,lh=42;
+  words.forEach(w=>{
+    const test=line+w+' ';
+    if(ctx.measureText(test).width>880&&line){ctx.fillText(line.trim(),540,y);line=w+' ';y+=lh;}
+    else line=test;
+  });
+  if(line)ctx.fillText(line.trim()+(claim.length>200?'...':''),540,y);
+
+  y+=90;
+  ctx.strokeStyle=auraColor;ctx.lineWidth=1;ctx.globalAlpha=.3;
+  ctx.beginPath();ctx.moveTo(140,y);ctx.lineTo(940,y);ctx.stroke();ctx.globalAlpha=1;
+
+  ctx.fillStyle=auraColor;ctx.font='italic 30px Georgia,serif';
+  ctx.fillText('She Already Exists — a free quiz by @sh.rik.aa',540,y+50);
+
+  // Show inline modal
+  const dataURL=canvas.toDataURL('image/png');
+  showShareModal(dataURL,name);
+}
+
+function showShareModal(dataURL,name){
+  let modal=document.getElementById('share-modal');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='share-modal';
+    modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML=`
+    <div style="background:#FEF5E9;max-width:440px;width:100%;padding:20px;text-align:center;">
+      <img src="${dataURL}" style="width:100%;display:block;margin-bottom:14px;" alt="Your result card">
+      <p style="font-family:'Caveat',cursive;font-size:1.1rem;color:#400026;margin-bottom:16px;">
+        📱 Mobile: press and hold the image → Save to Camera Roll<br>
+        💻 Desktop: right-click → Save Image As
+      </p>
+      <button onclick="document.getElementById('share-modal').remove()" style="background:#400026;color:#FFF8F0;border:none;padding:10px 24px;font-family:'Caveat',cursive;font-size:1.05rem;cursor:pointer;width:100%;">Done ✓</button>
+    </div>`;
+  modal.onclick=e=>{if(e.target===modal)modal.remove();};
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+function init(){
+  buildOrder();
+  // Inject woman SVG
+  const wf=document.getElementById('welcome-fig');if(wf)wf.innerHTML=FIGS.paris;
+  const vf=document.getElementById('viz-fig');if(vf)vf.innerHTML=FIGS.paris;
+
+  buildMSW('skin-g',SKINS,'skinTone');
+  buildMSW('hair-g',HAIRS,'hairColor','hairHex');
+  buildPills('tex-g',TEXTURES,'hairTex');
+  buildPills('body-g',BODYTYPES,'bodyType');
+  buildPills('sex-g',SEXUALITIES,'sexuality');
+  buildAdjGroups();
+  buildPills('quirk-g',QUIRKS,'quirks',true,3);
+  buildInsecurities();
+  buildPriorities();
+  buildPills('cf-g',CFIELDS,'cfield');
+  buildPills('cs-g',CSHIFTS,'cshift');
+  buildPills('lf-g',LFEELS,'lfeel',true);
+  buildPills('lp-g',LPERS,'lpersonality',true);
+  buildPills('lb-g',LBUILDS,'lbuild');
+  buildPills('lt-g',LTREATS,'ltreats',true);
+  buildPills('br-g',BODYRELS,'bodyRel');
+  buildPills('bg-g',BODYGOALS,'bodyGoal',true);
+  buildPills('bm-g',BODYMOVE,'bodyMove',true);
+  buildPills('ls-g',LANDSCAPES,'landscape');
+  buildPills('ht-g',HOMETYPES,'homeType');
+  buildPills('hm-g',HOMEMUS,'homeMH',true);
+  buildPills('sp-g',SPIRITUALS,'spiritual',true);
+  buildPills('mn-g',MENTALS,'mental',true);
+  buildPills('cw-g',COMMWHO,'commWho',true);
+  buildPills('cr-g',COMMROOM,'commRoom');
+  buildHobbies();
+  buildPills('fb-g',FOODBS,'breakfast',true);
+  buildPills('fd-g',FOODD,'drinks');
+  buildPills('fl-g',FOODL,'lunch');
+  buildPills('fdi-g',FOODDI,'dinner',true);
+  buildPills('fde-g',FOODDE,'dessert',true);
+  buildPills('ft-g',FOODTYPES,'foodType');
+  buildAesthetics();
+  buildColorPairs('aura-f-g','auraF');
+  buildColorPairs('aura-n-g','auraN');
+  buildPills('iw-e-g',IW_ENERGY,'iwEnergy');
+  buildPills('iw-t-g',IW_TRANSFORM,'iwTransform');
+  buildIWWants();
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
