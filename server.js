@@ -40,19 +40,27 @@ function writeSubmissions(submissions) {
 
 async function forwardToGoogleSheet(payload) {
   const url = process.env.GOOGLE_SHEET_WEBHOOK_URL;
-  const secret = process.env.GOOGLE_SHEET_SECRET || 'she-already-exists-2026';
+  const secret = process.env.GOOGLE_SHEET_SECRET;
 
   if (!url) {
     return { success: true, skipped: true };
   }
 
+  const consentGiven =
+    payload.consent === true ||
+    payload.consent === 'true' ||
+    payload.consent === 1 ||
+    payload.consent === '1';
+
   const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({
       ...payload,
       secret,
-      consent: payload.consent === true,
+      consent: consentGiven,
       submittedAt: new Date().toISOString()
     })
   });
@@ -60,16 +68,14 @@ async function forwardToGoogleSheet(payload) {
   const result = await response.json().catch(() => ({}));
 
   return {
-    success: response.ok,
+    success: response.ok && result.success === true,
     skipped: false,
     result
   };
 }
-
 function cleanSubmission(data) {
   const cleaned = { ...data };
   delete cleaned.secret;
-  delete cleaned.consent;
   return cleaned;
 }
 

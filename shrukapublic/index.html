@@ -394,11 +394,20 @@ canvas{display:none;}
   <div class="orb orb-wine"></div>
   <div class="qlabel">Almost there<span id="nm-span">, her</span>.</div>
   <p class="email-note">Leave your email to see your result. I'll only use it to reach out personally — no lists, no spam.</p>
+
   <div class="flabel">Your email</div>
   <input class="field" type="email" id="uemail" placeholder="your@email.com" oninput="A.email=this.value">
-  <div class="nav-row"><button class="bbk" onclick="bk()">← back</button><button class="bnxt" onclick="buildResult()">Show me her →</button></div>
-</div>
 
+  <label style="display:block; margin-top:12px; font-size:0.85rem; opacity:0.8;">
+    <input type="checkbox" id="consent">
+    I agree to have my quiz response stored so I can be contacted about my result.
+  </label>
+
+  <div class="nav-row">
+    <button class="bbk" onclick="bk()">← back</button>
+    <button class="bnxt" onclick="buildResult()">Show me her →</button>
+  </div>
+</div>
 <div class="step" id="s-res">
   <div class="res-hero">
     <div class="res-aura" id="raura"></div>
@@ -792,8 +801,46 @@ function buildIWWants(){
 }
 
 // ── RESULTS ───────────────────────────────────────────────────────────────
-function buildResult(){
-  if(!A.email){alert('Please enter your email to see your result.');return;}
+async function buildResult(){
+    A.email = document.getElementById('uemail').value.trim();
+
+  if(!A.email){
+    alert('Please enter your email to see your result.');
+    return;
+  }
+
+  const consent = document.getElementById('consent');
+
+  if(!consent || !consent.checked){
+    alert('Please agree to have your response stored.');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/quiz', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ...A,
+        email: A.email,
+        consent: true
+      })
+    });
+
+    const result = await response.json();
+
+    if(!response.ok){
+      throw new Error(result.message || 'Submission failed.');
+    }
+
+    console.log('Quiz submission saved:', result);
+  } catch(error) {
+    console.error('Quiz submission failed:', error);
+    alert('Your result could not be saved. Please try again.');
+    return;
+  }
   const arch=getArchetype();
   const n=A.name||'her';
   const aura=A.auraF||'#400026';
